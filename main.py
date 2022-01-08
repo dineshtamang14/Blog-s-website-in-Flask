@@ -1,10 +1,11 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
 from flask_ckeditor import CKEditor, CKEditorField
+from datetime import date
 
 
 app = Flask(__name__)
@@ -60,9 +61,17 @@ def edit_post(post_id):
     pass
 
 
-@app.route("/new-post")
+@app.route("/new-post", methods=['GET', 'POST'])
 def add_post():
+    today = date.today().strftime("%B %d, %Y")
     form = CreatePostForm()
+    if request.method == "POST":
+        new_blog = BlogPost(title=request.form['title'], subtitle=request.form['subtitle'], date=today,
+                            author=request.form['author'], img_url=request.form['img_url'],
+                            body=request.form['body'])
+        db.session.add(new_blog)
+        db.session.commit()
+        return redirect(url_for('get_all_posts'))
     return render_template("make-post.html", form=form)
 
 
