@@ -56,9 +56,26 @@ def show_post(index):
     return render_template("post.html", post=requested_post)
 
 
-@app.route("/edit_post<int:post_id>")
+@app.route("/edit_post<int:post_id>", methods=['GET', 'POST'])
 def edit_post(post_id):
-    pass
+    post = BlogPost.query.get(post_id)
+    if request.method == 'GET':
+        edit_form = CreatePostForm(
+            title=post.title,
+            subtitle=post.subtitle,
+            img_url=post.img_url,
+            author=post.author,
+            body=post.body
+        )
+        return render_template("make-post.html", form=edit_form, msg="Edit Post")
+    elif request.method == "POST":
+        post.title = request.form['title']
+        post.subtitle = request.form['subtitle']
+        post.author = request.form['author']
+        post.img_url = request.form['img_url']
+        post.body = request.form['body']
+        db.session.commit()
+        return redirect(url_for('show_post', index=post_id))
 
 
 @app.route("/new-post", methods=['GET', 'POST'])
@@ -72,7 +89,7 @@ def add_post():
         db.session.add(new_blog)
         db.session.commit()
         return redirect(url_for('get_all_posts'))
-    return render_template("make-post.html", form=form)
+    return render_template("make-post.html", form=form, msg="New Post")
 
 
 @app.route("/about")
@@ -83,6 +100,14 @@ def about():
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
+
+
+@app.route("/delete/<int:post_id>")
+def delete_blog(post_id):
+    del_blog = BlogPost.query.get(post_id)
+    db.session.delete(del_blog)
+    db.session.commit()
+    return redirect(url_for('get_all_posts'))
 
 
 if __name__ == "__main__":
