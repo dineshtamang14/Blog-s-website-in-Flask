@@ -12,15 +12,14 @@ import smtplib
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
+name = "SelenaGomez"
 Bootstrap(app)
 
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
-email_id = "dineshshah960@gmail.com"
-email_pass = "SelenaGomez"
+email = "dineshshah960@gmail.com"
 
 
 # CONFIGURE TABLE
@@ -119,8 +118,8 @@ def contact():
         print(message)
         with smtplib.SMTP("smtp.gmail.com") as connection:
             connection.starttls()
-            connection.login(email_id, email_pass)
-            connection.sendmail(from_addr=email_id, to_addrs="dineshtamang7263@gmail.com",
+            connection.login(email, name)
+            connection.sendmail(from_addr=email, to_addrs="dineshtamang7263@gmail.com",
                                                                 msg="subject: customer feedback \n\n"
                                                                             f"Name: {name} \n"
                                                                             f"Email: {email} \n "
