@@ -28,6 +28,9 @@ class BlogPost(db.Model):
     author = db.Column(db.String(250), nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
 
+    def to_dict(self):
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
 
 # WTForm
 class CreatePostForm(FlaskForm):
@@ -35,7 +38,7 @@ class CreatePostForm(FlaskForm):
     subtitle = StringField("Subtitle", validators=[DataRequired()])
     author = StringField("Your Name", validators=[DataRequired()])
     img_url = StringField("Blog Image URL", validators=[DataRequired(), URL()])
-    body = StringField("Blog Content", validators=[DataRequired()])
+    body = CKEditorField("Blog Content", validators=[DataRequired()])
     submit = SubmitField("Submit Post")
 
 
@@ -47,12 +50,20 @@ def get_all_posts():
 
 @app.route("/post/<int:index>")
 def show_post(index):
-    requested_post = None
-    posts = db.session.query(BlogPost).all()
-    for blog_post in posts:
-        if blog_post["id"] == index:
-            requested_post = blog_post
+    posts = BlogPost.query.get(index)
+    requested_post = posts.to_dict()
     return render_template("post.html", post=requested_post)
+
+
+@app.route("/edit_post<int:post_id>")
+def edit_post(post_id):
+    pass
+
+
+@app.route("/new-post")
+def add_post():
+    form = CreatePostForm()
+    return render_template("make-post.html", form=form)
 
 
 @app.route("/about")
