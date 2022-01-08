@@ -6,6 +6,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
 from flask_ckeditor import CKEditor, CKEditorField
 from datetime import date
+import smtplib
 
 
 app = Flask(__name__)
@@ -17,6 +18,9 @@ Bootstrap(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+email_id = "dineshshah960@gmail.com"
+email_pass = "SelenaGomez"
 
 
 # CONFIGURE TABLE
@@ -97,17 +101,33 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
-def contact():
-    return render_template("contact.html")
-
-
 @app.route("/delete/<int:post_id>")
 def delete_blog(post_id):
     del_blog = BlogPost.query.get(post_id)
     db.session.delete(del_blog)
     db.session.commit()
     return redirect(url_for('get_all_posts'))
+
+
+@app.route("/contact", methods=["GET", "POST"])
+def contact():
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        message = request.form["message"]
+        print(message)
+        with smtplib.SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(email_id, email_pass)
+            connection.sendmail(from_addr=email_id, to_addrs="dineshtamang7263@gmail.com",
+                                                                msg="subject: customer feedback \n\n"
+                                                                            f"Name: {name} \n"
+                                                                            f"Email: {email} \n "
+                                                                            f"Phone: {phone} \n "
+                                                                            f"message: {message}")
+        return redirect(url_for('contact'))
+    return render_template("contact.html")
 
 
 if __name__ == "__main__":
