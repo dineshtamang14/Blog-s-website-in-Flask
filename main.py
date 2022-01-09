@@ -130,7 +130,7 @@ def contact():
 
 
 @app.route("/new-post")
-@admin_only()
+@admin_only
 def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
