@@ -19,7 +19,7 @@ Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
-email = "dineshshah960@gmail.com"
+email_id = "dineshshah960@gmail.com"
 gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=False,
                     force_lower=False, use_ssl=False, base_url=None)
 
@@ -165,8 +165,8 @@ def contact():
         print(message)
         with smtplib.SMTP("smtp.gmail.com") as connection:
             connection.starttls()
-            connection.login(email, email_name)
-            connection.sendmail(from_addr=email, to_addrs="dineshtamang7263@gmail.com",
+            connection.login(email_id, email_name)
+            connection.sendmail(from_addr=email_id, to_addrs="dineshtamang7263@gmail.com",
                                                                 msg="subject: customer feedback \n\n"
                                                                             f"Name: {name} \n"
                                                                             f"Email: {email} \n "
