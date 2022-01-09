@@ -1,3 +1,4 @@
+from dominate.tags import comment
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, EmailField
 from wtforms.validators import DataRequired, URL, Email
@@ -26,3 +27,8 @@ class LoginForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Let Me in")
+
+
+class CommentForm(FlaskForm):
+    comment_text = CKEditorField("Comment")
+    submit = SubmitField("submit comment")
