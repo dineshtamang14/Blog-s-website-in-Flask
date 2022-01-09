@@ -6,14 +6,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreatePostForm, RegisterForm
+from forms import CreatePostForm, RegisterForm, LoginForm
 from flask_gravatar import Gravatar
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
 Bootstrap(app)
-
+login_manager = LoginManager()
+login_manager.init_app(app)
+db = SQLAlchemy(app)
 
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
@@ -34,7 +36,7 @@ class BlogPost(db.Model):
     img_url = db.Column(db.String(250), nullable=False)
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "blog_users"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(250), nullable=False, unique=True)
@@ -43,6 +45,11 @@ class User(db.Model):
 
 
 db.create_all()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @app.route('/')
@@ -54,22 +61,42 @@ def get_all_posts():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
-    if request.method == "GET":
-        return render_template("register.html", form=form)
-    elif request.method == 'POST':
-        new_user = User(email=form.email.data, password=form.password.data, name=form.name.data)
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('get_all_posts'))
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            if User.query.filter_by(email=form.email.data).first():
+                flash("Email already Registered")
+                return redirect(url_for('login'))
+            hashed_password = generate_password_hash(form.password.data, method="pbkdf2:sha256", salt_length=8)
+            new_user = User(email=form.email.data, password=hashed_password, name=form.name.data)
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user)
+            return redirect(url_for('get_all_posts'))
+    return render_template("register.html", form=form)
 
 
-@app.route('/login')
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    return render_template("login.html")
+    form = LoginForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user = User.query.filter_by(email=form.email.data).first()
+            if user:
+                if check_password_hash(user.password, form.password.data):
+                    login_user(user, remember=True)
+                    return redirect(url_for('get_all_posts'))
+                else:
+                    flash("Wrong Password! please try again.")
+                    return redirect(url_for('login'))
+            else:
+                flash("Wrong Email! please try again")
+    return render_template("login.html", form=form)
 
 
+@login_required
 @app.route('/logout')
 def logout():
+    logout_user()
     return redirect(url_for('get_all_posts'))
 
 
