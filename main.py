@@ -18,12 +18,14 @@ Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
+email = "dineshshah960@gmail.com"
 gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=False,
                     force_lower=False, use_ssl=False, base_url=None)
 
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+name = "SelenaGomez"
 db = SQLAlchemy(app)
 
 
@@ -152,8 +154,24 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["GET", "POST"])
 def contact():
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        message = request.form["message"]
+        print(message)
+        with smtplib.SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(email, name)
+            connection.sendmail(from_addr=email, to_addrs="dineshtamang7263@gmail.com",
+                                                                msg="subject: customer feedback \n\n"
+                                                                            f"Name: {name} \n"
+                                                                            f"Email: {email} \n "
+                                                                            f"Phone: {phone} \n "
+                                                                            f"message: {message}")
+        return redirect(url_for('contact'))
     return render_template("contact.html")
 
 
