@@ -26,7 +26,7 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 # CONNECT TO DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-name = "SelenaGomez"
+email_name = "SelenaGomez"
 db = SQLAlchemy(app)
 
 
@@ -165,7 +165,7 @@ def contact():
         print(message)
         with smtplib.SMTP("smtp.gmail.com") as connection:
             connection.starttls()
-            connection.login(email, name)
+            connection.login(email, email_name)
             connection.sendmail(from_addr=email, to_addrs="dineshtamang7263@gmail.com",
                                                                 msg="subject: customer feedback \n\n"
                                                                             f"Name: {name} \n"
