@@ -61,35 +61,34 @@ def get_all_posts():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            if User.query.filter_by(email=form.email.data).first():
-                flash("Email already Registered")
-                return redirect(url_for('login'))
-            hashed_password = generate_password_hash(form.password.data, method="pbkdf2:sha256", salt_length=8)
-            new_user = User(email=form.email.data, password=hashed_password, name=form.name.data)
-            db.session.add(new_user)
-            db.session.commit()
-            login_user(new_user)
-            return redirect(url_for('get_all_posts'))
+    if form.validate_on_submit():
+        if User.query.filter_by(email=form.email.data).first():
+            flash("You've already signed up with that email, log in instead!")
+            return redirect(url_for('login'))
+        hashed_password = generate_password_hash(form.password.data, method="pbkdf2:sha256", salt_length=8)
+        new_user = User(email=form.email.data, password=hashed_password, name=form.name.data)
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+        return redirect(url_for('get_all_posts'))
     return render_template("register.html", form=form)
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     form = LoginForm()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            user = User.query.filter_by(email=form.email.data).first()
-            if user:
-                if check_password_hash(user.password, form.password.data):
-                    login_user(user, remember=True)
-                    return redirect(url_for('get_all_posts'))
-                else:
-                    flash("Wrong Password! please try again.")
-                    return redirect(url_for('login'))
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            if check_password_hash(user.password, form.password.data):
+                login_user(user, remember=True)
+                return redirect(url_for('get_all_posts'))
             else:
-                flash("Wrong Email! please try again")
+                flash("Wrong Password! please try again.")
+                return redirect(url_for('login'))
+        else:
+            flash("That email does not exist, please try again.")
+            return redirect(url_for('login'))
     return render_template("login.html", form=form)
 
 
