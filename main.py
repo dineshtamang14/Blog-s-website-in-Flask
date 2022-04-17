@@ -14,13 +14,13 @@ import smtplib
 import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dinesh'
 ckeditor = CKEditor(app)
 Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
-email_id = os.environ.get('EMAIL_ID')
+email_id = os.environ.get('EMAIL_ID') or 'dineshtamang7263@gmail.com'
 gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=False,
                     force_lower=False, use_ssl=False, base_url=None)
 
@@ -226,4 +226,4 @@ def delete_post(post_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,port=5001, host='0.0.0.0')
