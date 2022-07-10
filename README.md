@@ -1,5 +1,5 @@
 # Blogs-website-in-Flask
-  live link here:
+  live link:
     https://dinesh-blog.herokuapp.com
     
 ![Screenshot (6)](https://user-images.githubusercontent.com/59863035/147814490-7d2f30d4-a2c6-43cd-a673-a1fdcc3dac8d.png)
